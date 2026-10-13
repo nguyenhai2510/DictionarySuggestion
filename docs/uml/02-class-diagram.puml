@@ -1,0 +1,61 @@
+@startuml
+skinparam classAttributeIconSize 0
+class Word {
+  - englishWord: String
+  - vietnameseMeaning: String
+  + Word(englishWord: String, vietnameseMeaning: String)
+  + getEnglishWord(): String
+  + getVietnameseMeaning(): String
+  + setVietnameseMeaning(meaning: String): void
+}
+class TrieNode {
+  - children: Map<Character, TrieNode>
+  - endOfWord: boolean
+}
+class Trie {
+  - root: TrieNode
+  + insert(word: String): void
+  + remove(word: String): boolean
+  + contains(word: String): boolean
+  + suggest(prefix: String, limit: int): List<String>
+}
+class DictionaryRepository {
+  - filePath: Path
+  + load(): List<Word>
+  + save(words: Collection<Word>): void
+}
+class DictionaryService {
+  - words: Map<String, Word>
+  - trie: Trie
+  - repository: DictionaryRepository
+  + addWord(english: String, meaning: String): void
+  + updateMeaning(english: String, meaning: String): void
+  + deleteWord(english: String): boolean
+  + findWord(english: String): Word
+  + suggestWords(prefix: String, limit: int): List<Word>
+  + getAllWords(): List<Word>
+  + load(): void
+  + save(): void
+}
+class DictionaryController {
+  - service: DictionaryService
+  + handleAdd(): void
+  + handleUpdate(): void
+  + handleDelete(): void
+  + handleSearch(): void
+  + refreshSuggestions(prefix: String): void
+}
+class DictionaryApp {
+  + start(stage: Stage): void
+}
+Trie *-- "1..*" TrieNode : nodes
+DictionaryService *-- "1" Trie
+DictionaryService o-- "0..*" Word : words
+DictionaryService --> "1" DictionaryRepository
+DictionaryController --> "1" DictionaryService
+DictionaryApp --> DictionaryController
+note right of DictionaryService
+  Đồng bộ HashMap và Trie.
+  Báo thành công sau khi lưu CSV.
+end note
+@enduml

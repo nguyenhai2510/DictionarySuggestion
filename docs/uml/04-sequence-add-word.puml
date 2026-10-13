@@ -1,0 +1,32 @@
+@startuml
+actor "Người dùng" as User
+participant "DictionaryController" as UI
+participant "DictionaryService" as Service
+collections "HashMap<String, Word>" as Map
+participant "Trie" as Trie
+participant "DictionaryRepository" as Repo
+User -> UI : Nhập từ và nghĩa, chọn Thêm
+UI -> Service : addWord(english, meaning)
+Service -> Service : Chuẩn hóa và kiểm tra hợp lệ
+Service -> Map : containsKey(english)
+Map --> Service : boolean
+alt Dữ liệu không hợp lệ hoặc từ trùng
+  Service --> UI : Báo lỗi
+  UI --> User : Hiển thị lỗi
+else Hợp lệ
+  Service -> Map : put(english, Word)
+  Service -> Trie : insert(english)
+  Service -> Repo : save(allWords)
+  alt Lưu thành công
+    Repo --> Service : OK
+    Service --> UI : Thành công
+    UI --> User : Cập nhật danh sách
+  else Lưu thất bại
+    Repo --> Service : IOException
+    Service -> Map : remove(english)
+    Service -> Trie : remove(english)
+    Service --> UI : Báo lỗi lưu file
+    UI --> User : Hiển thị lỗi
+  end
+end
+@enduml

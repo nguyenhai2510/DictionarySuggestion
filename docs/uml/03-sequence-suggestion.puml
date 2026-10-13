@@ -1,0 +1,19 @@
+@startuml
+actor "Người dùng" as User
+participant "DictionaryController" as UI
+participant "DictionaryService" as Service
+participant "Trie" as Trie
+collections "HashMap<String, Word>" as Map
+User -> UI : Nhập tiền tố "app"
+UI -> Service : suggestWords("app", 10)
+Service -> Service : Chuẩn hóa tiền tố
+Service -> Trie : suggest("app", 10)
+Trie -> Trie : Tìm nút tiền tố, duyệt nhánh theo alphabet
+Trie --> Service : List<String> keys
+loop Mỗi từ gợi ý
+  Service -> Map : get(key)
+  Map --> Service : Word
+end
+Service --> UI : List<Word>
+UI --> User : Hiển thị gợi ý và nghĩa
+@enduml
